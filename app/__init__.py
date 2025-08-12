@@ -1,46 +1,44 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from flask_bcrypt import Bcrypt
-from flask_migrate import Migrate
-import os
+from flasgger import Swagger
+from app.extensions import db, bcrypt, login_manager, csrf
 
-# Extensions (Global)
-db = SQLAlchemy()
-bcrypt = Bcrypt()
-login_manager = LoginManager()
-login_manager.login_view = 'main.login'
-migrate = Migrate()
+def create_app(testing=False):
+    app = Flask(__name__)
 
-def create_app():
-    app = Flask(__name__, instance_relative_config=True)  # Looks for 'instance/' folder
+    # Basic config
+    app.config['SECRET_KEY'] = 'your_secret_key'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SWAGGER'] = {
+        'title': 'FindNaija Lost & Found API',
+        'uiversion': 3
+    }
 
-    # ✅ Ensure instance folder exists
-    os.makedirs(app.instance_path, exist_ok=True)
+    if testing:
+        # Use in-memory database for clean test runs
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    else:
+        # Use the persistent database in normal mode
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///findnaija.db'
 
-    # ✅ Use environment variable for secret key
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback-key')
-
-    # ✅ Use full path to DB inside instance/
-    db_path = os.path.join(app.instance_path, 'site.db')
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-
-    # ✅ Optional: print DB path during app creation
-    print("[✔] Database path:", db_path)
-
-    # ✅ Secure cookie settings for production
-    app.config['SESSION_COOKIE_SECURE'] = True
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-
-    # ✅ Initialize extensions
+    # Initialize extensions
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
-    migrate.init_app(app, db)
+    csrf.init_app(app)
 
-    # ✅ Register Blueprint(s)
+    # Enable Swagger UI
+    Swagger(app)
+
+    # Register routes
     from app.routes import main
+    from app.api_routes import api_bp
     app.register_blueprint(main)
+    app.register_blueprint(api_bp, url_prefix='/api')
+
+    # Auto-create tables in testing mode
+    if testing:
+        with app.app_context():
+            db.create_all()
 
     return app

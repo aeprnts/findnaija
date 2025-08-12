@@ -18,10 +18,37 @@
       <p><strong>📞 Contact:</strong> {{ item.contact_info }}</p>
       <p class="item-date">📅 {{ item.date_posted.strftime('%b %d, %Y') }}</p>
       <p style="font-size: 13px; color: #555;">👤 Posted by: {{ item.user.username }}</p>
+
+      <!-- Show Claim / Manage buttons -->
+      {% if current_user.is_authenticated %}
+        {% if current_user.id != item.user_id %}
+          <!-- Claim Button -->
+          <a href="{{ url_for('main.claim_item', item_id=item.id) }}"
+             style="display: inline-block; background-color: royalblue; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; margin-top: 8px;">
+             📩 Claim This Item
+          </a>
+        {% else %}
+          <!-- Manage Claims Button -->
+          <a href="{{ url_for('main.manage_claims', item_id=item.id) }}"
+             style="display: inline-block; background-color: darkorange; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; margin-top: 8px;">
+             📋 Manage Claims
+          </a>
+        {% endif %}
+      {% endif %}
     </div>
     {% endfor %}
   </div>
 {% else %}
   <p style="text-align:center; color: gray;">No lost or found items posted yet.</p>
 {% endif %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0; border: 1px solid #c3e6cb;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 {% endblock %}

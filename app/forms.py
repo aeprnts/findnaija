@@ -16,9 +16,13 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class LostItemForm(FlaskForm):
-    title = StringField('Item Title', validators=[DataRequired()])
-    description = TextAreaField('Description', validators=[DataRequired()])  # ✅ This needs the import
-    location = StringField('Last Seen Location', validators=[DataRequired()])
-    contact_info = StringField('Your Contact Info', validators=[DataRequired()])
+    title = StringField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    location = StringField('Location', validators=[DataRequired()])
+    contact_info = StringField('Contact Info', validators=[DataRequired()])
     image_file = FileField('Upload Image', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
-    submit = SubmitField('Post Item')
+    submit = SubmitField('Submit')
+
+class ClaimForm(FlaskForm):
+    message = TextAreaField('Why is this item yours?', validators=[DataRequired(), Length(min=5)])
+    submit = SubmitField('Send Claim Request')

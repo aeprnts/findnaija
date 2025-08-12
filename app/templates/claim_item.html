@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<a href="{{ url_for('main.view_items') }}" class="btn-back">← Back to Items</a>
+
+<h2>{{ item.title }}</h2>
+
+{% if item.image_file %}
+    <img src="{{ url_for('static', filename='uploads/' ~ item.image_file) }}" 
+         alt="Item Image" style="max-width: 300px; display: block; margin-bottom: 15px;">
+{% endif %}
+
+<p><strong>📍 Location:</strong> {{ item.location }}</p>
+<p>{{ item.description }}</p>
+<p><strong>📞 Contact:</strong> {{ item.contact_info }}</p>
+<p class="item-date">📅 {{ item.date_posted.strftime('%b %d, %Y') }}</p>
+<p style="font-size: 13px; color: #555;">👤 Posted by: {{ item.user.username }}</p>
+
+{% if user_claim %}
+    <!-- If this user has already claimed -->
+    <p style="color: green; font-weight: bold;">✅ You have already claimed this item.</p>
+
+    <!-- Cancel Claim Form -->
+    <form action="{{ url_for('main.delete_claim', claim_id=user_claim.id) }}" method="POST" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit"
+                style="display: inline-block; background-color: rgb(177, 14, 46); color: white; padding: 7px 12px; border-radius: 5px; text-decoration: none; border: none; cursor: pointer; font-size: inherit;"
+                onclick="return confirm('Are you sure you want to cancel your claim?')">
+            🗑️ Cancel My Claim
+        </button>
+    </form>
+{% else %}
+    <!-- Claim Form -->
+    <form id="claimForm" method="POST" action="{{ url_for('main.claim_item', item_id=item.id) }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- Message -->
+        <label for="message"><strong>Why is this item yours?</strong></label><br>
+        <textarea id="message" name="message" rows="4" required 
+                  style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px;"></textarea>
+
+        <!-- Image Upload -->
+        <label for="claim_image"><strong>Attach a proof image (optional):</strong></label><br>
+        <input type="file" id="claim_image" name="claim_image" accept="image/*"
+               style="margin-bottom: 15px; display: block;">
+
+        <!-- Submit Button -->
+        <button type="submit" 
+                style="display: inline-block; background-color: #37a037; color: white; padding: 6px 12px; border-radius: 5px; border: none; cursor: pointer; font-size: inherit;">
+            📩 Send Claim Request
+        </button>
+    </form>
+{% endif %}
+
+{% endblock %}

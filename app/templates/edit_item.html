@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    resize: vertical;
+  }
+
+  .form-container {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .form-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .form-button:hover {
+    background-color: #45a049;
+  }
+</style>
+
+<a href="{{ url_for('main.my_items') }}" class="btn-back">← Back to My Posts</a>
+
+<h2 style="text-align:center; margin-bottom: 30px;">✏️ Edit Lost Item</h2>
+
+<form method="POST" enctype="multipart/form-data" class="form-container">
+  {{ form.hidden_tag() }}
+
+  <label for="title">Title</label>
+  {{ form.title(class="form-input") }}
+
+  <label for="description">Description</label>
+  {{ form.description(class="form-textarea") }}
+
+  <label for="location">Location</label>
+  {{ form.location(class="form-input") }}
+
+  <label for="contact_info">Contact Info</label>
+  {{ form.contact_info(class="form-input") }}
+
+  <label for="image_file">Change Image (optional)</label>
+  {{ form.image_file(class="form-input") }}
+
+  {% if item.image_file %}
+  <div style="text-align: center; margin-bottom: 10px;">
+    <p>📸 Current Image:</p>
+    <img src="{{ url_for('static', filename='uploads/' ~ item.image_file) }}" alt="Current Image" style="max-width: 200px; border-radius: 10px;">
+  </div>
+  {% endif %}
+
+
+  <button type="submit" class="form-button">💾 Save Changes</button>
+</form>
+{% endblock %}

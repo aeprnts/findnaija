@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<a href="{{ url_for('main.dashboard') }}" class="btn-back">← Back to Dashboard</a>
+
+<h2>Manage Claims for "{{ item.title }}"</h2>
+
+{% if claims %}
+<table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr>
+            <th>Proof Image</th>
+            <th>Claim Message</th>
+            <th>Status</th>
+            <th>Date Created</th>
+            <th>User & Contact</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for claim in claims %}
+            {% set status_color = 'green' if claim.status == 'Approved'
+                else 'red' if claim.status == 'Rejected'
+                else '#666' %}
+
+            <tr>
+                <!-- Proof Image -->
+                <td>
+                    {% if claim.image_file %}
+                        <img src="{{ url_for('static', filename='uploads/claims/' ~ claim.image_file) }}"
+                             alt="Claim Proof"
+                             style="max-width: 200px; border-radius: 5px;">
+                    {% else %}
+                        <span style="color: gray;">No image</span>
+                    {% endif %}
+                </td>
+
+                <!-- Claim Message -->
+                <td>{{ claim.message }}</td>
+
+                <!-- Status -->
+                <td style="font-weight: bold; color: {{ status_color }};">
+                    {{ claim.status }}
+                </td>
+
+                <!-- Date -->
+                <td>{{ claim.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+
+                <!-- User & Contact Info -->
+                <td>
+                    👤 {{ claim.user.username }}<br>
+                    📧 <a href="mailto:{{ claim.user.email }}" style="color: blue; text-decoration: underline;">
+                        {{ claim.user.email if claim.user.email else "No email" }}
+                    </a>
+                </td>
+
+                <!-- Action Buttons -->
+               <!-- Action Buttons -->
+                <td style="white-space: nowrap; min-width: 150px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        {% if claim.status != 'Approved' %}
+                            <a href="{{ url_for('main.update_claim', claim_id=claim.id, status='Approved') }}"
+                            style="background-color: green; color: white; padding: 6px 10px; border-radius: 5px; text-decoration: none; text-align: center;">
+                            Approve
+                            </a>
+                        {% endif %}
+                        {% if claim.status != 'Rejected' %}
+                            <a href="{{ url_for('main.update_claim', claim_id=claim.id, status='Rejected') }}"
+                            style="background-color: red; color: white; padding: 6px 10px; border-radius: 5px; text-decoration: none; text-align: center;">
+                            Reject
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('main.delete_claim', claim_id=claim.id) }}"
+                        onclick="return confirm('Are you sure you want to delete this claim?');"
+                        style="background-color: gray; color: white; padding: 6px 10px; border-radius: 5px; text-decoration: none; text-align: center;">
+                            Delete
+                        </a>
+                    </div>
+                </td>
+
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p style="color: gray;">No claims found for this item yet.</p>
+{% endif %}
+
+{% endblock %}
