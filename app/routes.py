@@ -141,15 +141,16 @@ def delete_item(item_id):
         return redirect(url_for('main.my_items'))
 
     try:
+        # Delete associated claims first
+        ClaimRequest.query.filter_by(item_id=item.id).delete()
         db.session.delete(item)
         db.session.commit()
         flash("✅ Item deleted.", "success")
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.session.rollback()
-        flash("⚠️ Error deleting item.", "danger")
+        flash(f"⚠️ Error deleting item: {e}", "danger")
 
     return redirect(url_for('main.my_items'))
-
 # ------------------- EDIT ITEM -------------------
 @main.route('/edit-item/<int:item_id>', methods=['GET', 'POST'])
 @login_required

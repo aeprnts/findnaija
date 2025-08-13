@@ -1,0 +1,241 @@
+openapi: 3.0.0
+info:
+  title: Lost & Found API
+  version: "1.0"
+  description: API documentation for the Lost & Found system.
+
+tags:
+  - name: Auth
+    description: User registration, login, and logout.
+  - name: Items
+    description: Create, view, update, and delete lost items.
+  - name: Claims
+    description: Manage claim requests for lost items.
+
+paths:
+  /api/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: User registered successfully
+        "400":
+          description: Missing or duplicate fields
+
+  /api/login:
+    post:
+      tags: [Auth]
+      summary: Log in user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Invalid credentials
+
+  /api/logout:
+    post:
+      tags: [Auth]
+      summary: Logout user
+      responses:
+        "200":
+          description: Logged out successfully
+
+  /api/items:
+    post:
+      tags: [Items]
+      summary: Create a lost item post
+      description: Creates a new lost item with optional image upload.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                location:
+                  type: string
+                contact_info:
+                  type: string
+                image_file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Item created successfully
+
+    get:
+      tags: [Items]
+      summary: Get all lost items
+      responses:
+        "200":
+          description: A list of lost items
+
+  /api/items/{item_id}:
+    get:
+      tags: [Items]
+      summary: Get a single lost item
+      parameters:
+        - in: path
+          name: item_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Item details
+        "404":
+          description: Item not found
+    put:
+      tags: [Items]
+      summary: Update a lost item
+      parameters:
+        - in: path
+          name: item_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                location:
+                  type: string
+                contact_info:
+                  type: string
+      responses:
+        "200":
+          description: Item updated successfully
+        "403":
+          description: Unauthorized
+    delete:
+      tags: [Items]
+      summary: Delete a lost item
+      parameters:
+        - in: path
+          name: item_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Item deleted successfully
+        "403":
+          description: Unauthorized
+
+  /api/claims:
+    post:
+      tags: [Claims]
+      summary: Create a claim request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                item_id:
+                  type: integer
+      responses:
+        "201":
+          description: Claim created successfully
+        "403":
+          description: Cannot claim own item
+    get:
+      tags: [Claims]
+      summary: Get all claims
+      responses:
+        "200":
+          description: List of claims
+
+  /api/claims/item/{item_id}:
+    get:
+      tags: [Claims]
+      summary: Get claims for a specific item
+      parameters:
+        - in: path
+          name: item_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of claims for the item
+        "403":
+          description: Unauthorized
+
+  /api/claims/{claim_id}:
+    put:
+      tags: [Claims]
+      summary: Update claim status
+      parameters:
+        - in: path
+          name: claim_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        "200":
+          description: Claim updated successfully
+        "403":
+          description: Unauthorized
+    delete:
+      tags: [Claims]
+      summary: Delete a claim
+      parameters:
+        - in: path
+          name: claim_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Claim deleted successfully
+        "403":
+          description: Unauthorized

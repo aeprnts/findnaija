@@ -27,6 +27,11 @@ class LostItem(db.Model):
 class ClaimRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(255))
+    image_file = db.Column(db.String(255), nullable=True)  # ✅ Add this
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     item_id = db.Column(db.Integer, db.ForeignKey('lost_item.id'))
     status = db.Column(db.String(50), default="Pending")
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='claims', lazy=True)
+    item = db.relationship('LostItem', backref='claims', lazy=True)

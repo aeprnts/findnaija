@@ -95,7 +95,7 @@ json
 {
   "title": "Lost Wallet",
   "description": "Black leather wallet lost near Central Park.",
-  "image_url": "http://example.com/images/wallet.jpg" or your file
+  "image_file": "http://example.com/images/wallet.jpg" or your file
 }
 
 Remember to include your authentication token in the Authorization header.
