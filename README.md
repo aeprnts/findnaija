@@ -104,7 +104,7 @@ Remember to include your authentication token in the Authorization header.
 RUNNING TEST
 To ensure the application and API are functioning correctly, run the following test command:
 
-python -m pytest --maxfail=1 --disable-warnings -q --cov=app --cov-report=term-missing tests/test_api.py
+python -m pytest --maxfail=1 --disable-warnings -q --cov=app --cov-report=term-missing tests/test_claims.py
 
 *Make sure your virtual environment is activated before running the tests.
 
